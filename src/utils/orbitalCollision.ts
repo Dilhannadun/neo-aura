@@ -24,7 +24,7 @@ export interface CollisionOrbit {
  * Uses improved algorithm with adaptive step size and higher precision
  */
 export function findOrbitalIntersection(
-  asteroidOrbitalData: any,
+  asteroidOrbitalData: unknown,
   maxSearchDays: number = 365 * 5 // Search up to 5 years
 ): { collisionTime: number; collisionPosition: THREE.Vector3 } | null {
   const initialSearchStep = 1; // Start with daily steps
@@ -45,7 +45,7 @@ export function findOrbitalIntersection(
     const earthPos = new THREE.Vector3(earthX, earthY, earthZ);
     
     // Get asteroid position at time t
-    const [asteroidX, asteroidY, asteroidZ] = getAsteroidPosition(t, asteroidOrbitalData);
+    const [asteroidX, asteroidY, asteroidZ] = getAsteroidPosition(t, asteroidOrbitalData as any);
     const asteroidPos = new THREE.Vector3(asteroidX, asteroidY, asteroidZ);
     
     // Check if they're close enough for collision
@@ -82,7 +82,7 @@ export function findOrbitalIntersection(
       const [earthX, earthY, earthZ] = getEarthPosition(t);
       const earthPos = new THREE.Vector3(earthX, earthY, earthZ);
       
-      const [asteroidX, asteroidY, asteroidZ] = getAsteroidPosition(t, asteroidOrbitalData);
+      const [asteroidX, asteroidY, asteroidZ] = getAsteroidPosition(t, asteroidOrbitalData as any);
       const asteroidPos = new THREE.Vector3(asteroidX, asteroidY, asteroidZ);
       
       const distance = earthPos.distanceTo(asteroidPos);
@@ -113,19 +113,20 @@ export function findOrbitalIntersection(
  * Returns array of intersection points with their times and positions
  */
 export function findAllOrbitalIntersections(
-  asteroidOrbitalData: any,
+  asteroidOrbitalData: unknown,
   maxSearchDays: number = 365 * 5
 ): Array<{ collisionTime: number; collisionPosition: THREE.Vector3; distance: number }> {
   const intersections: Array<{ collisionTime: number; collisionPosition: THREE.Vector3; distance: number }> = [];
   const searchStep = 0.5; // Search every 0.5 days for better precision
   const minDistance = 0.01; // AU - minimum distance for intersection
-  const earthRadius = 0.000042; // Earth radius in AU
+  const _earthRadius = 0.000042; // Earth radius in AU
+  void _earthRadius;
   
   for (let t = 0; t <= maxSearchDays; t += searchStep) {
     const [earthX, earthY, earthZ] = getEarthPosition(t);
     const earthPos = new THREE.Vector3(earthX, earthY, earthZ);
     
-    const [asteroidX, asteroidY, asteroidZ] = getAsteroidPosition(t, asteroidOrbitalData);
+    const [asteroidX, asteroidY, asteroidZ] = getAsteroidPosition(t, asteroidOrbitalData as any);
     const asteroidPos = new THREE.Vector3(asteroidX, asteroidY, asteroidZ);
     
     const distance = earthPos.distanceTo(asteroidPos);
@@ -148,8 +149,8 @@ export function findAllOrbitalIntersections(
  * This creates a more accurate elliptical orbit that will definitely intersect with Earth
  */
 export function createCollisionOrbit(
-  originalOrbitalData: any,
-  earthPosition: THREE.Vector3,
+  _originalOrbitalData: unknown,
+  _earthPosition: THREE.Vector3,
   timeToCollision: number = 30 // days
 ): CollisionOrbit {
   // Get Earth's position at collision time
@@ -160,8 +161,10 @@ export function createCollisionOrbit(
   // We need to calculate orbital elements that ensure the asteroid reaches the collision point
   
   // Use Earth's orbital parameters as base, but modify to create intersection
-  const earthSemiMajorAxis = 1.0; // AU
-  const earthEccentricity = 0.0167; // Earth's actual eccentricity
+  const _earthSemiMajorAxis = 1.0; // AU
+  const _earthEccentricity = 0.0167; // Earth's actual eccentricity
+  void _earthSemiMajorAxis;
+  void _earthEccentricity;
   
   // Create collision orbit with slightly different parameters to ensure intersection
   const collisionSemiMajorAxis = 1.0; // Same as Earth for orbital intersection
@@ -174,7 +177,8 @@ export function createCollisionOrbit(
   
   // Position the asteroid to intersect with Earth at the collision point
   // We need to calculate where the asteroid should start to reach this point
-  const asteroidStartTime = 0; // Start from current time
+  const _asteroidStartTime = 0; // Start from current time
+  void _asteroidStartTime;
   const timeToReachCollision = timeToCollision;
   
   // Calculate orbital elements for intersection
@@ -212,7 +216,7 @@ export function createCollisionOrbit(
  * This creates a trajectory that naturally intersects with Earth's orbit
  */
 export function createIntersectingCollisionOrbit(
-  originalOrbitalData: any,
+  _originalOrbitalData: unknown,
   timeToCollision: number = 30 // days
 ): CollisionOrbit {
   // Get Earth's position at collision time
@@ -223,11 +227,16 @@ export function createIntersectingCollisionOrbit(
   // We'll create an orbit that passes through Earth's position at collision time
   
   // Earth's orbital parameters
-  const earthSemiMajorAxis = 1.0; // AU
-  const earthEccentricity = 0.0167;
-  const earthInclination = 0; // Earth's orbit is the reference plane
-  const earthAscendingNode = 0;
-  const earthArgumentOfPeriapsis = 0;
+  const _earthSemiMajorAxis = 1.0; // AU
+  const _earthEccentricity = 0.0167;
+  const _earthInclination = 0; // Earth's orbit is the reference plane
+  const _earthAscendingNode = 0;
+  const _earthArgumentOfPeriapsis = 0;
+  void _earthSemiMajorAxis;
+  void _earthEccentricity;
+  void _earthInclination;
+  void _earthAscendingNode;
+  void _earthArgumentOfPeriapsis;
   
   // Create collision orbit that intersects with Earth's orbit
   // We'll create an orbit that has the same semi-major axis as Earth but different timing
@@ -494,7 +503,7 @@ export function getCollisionOrbitVelocity(
  * Analyze orbital intersections and provide detailed collision risk assessment
  */
 export function analyzeOrbitalIntersections(
-  asteroidOrbitalData: any,
+  asteroidOrbitalData: unknown,
   maxSearchDays: number = 365 * 5
 ): {
   intersections: Array<{ collisionTime: number; collisionPosition: THREE.Vector3; distance: number }>;
@@ -518,7 +527,7 @@ export function analyzeOrbitalIntersections(
     const [earthX, earthY, earthZ] = getEarthPosition(t);
     const earthPos = new THREE.Vector3(earthX, earthY, earthZ);
     
-    const [asteroidX, asteroidY, asteroidZ] = getAsteroidPosition(t, asteroidOrbitalData);
+    const [asteroidX, asteroidY, asteroidZ] = getAsteroidPosition(t, asteroidOrbitalData as any);
     const asteroidPos = new THREE.Vector3(asteroidX, asteroidY, asteroidZ);
     
     const distance = earthPos.distanceTo(asteroidPos);

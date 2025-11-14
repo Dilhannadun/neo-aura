@@ -234,7 +234,6 @@ function PathToImpact({
   useFrame(() => {
     if (impactPosition) {
       let asteroidPosition: THREE.Vector3;
-      let earthPosition: THREE.Vector3;
 
       if (collisionOrbit) {
         // Use collision orbit position
@@ -247,65 +246,66 @@ function PathToImpact({
 
       // Get Earth's position
       const [earthX, earthY, earthZ] = getEarthPosition(simulationTime);
-      earthPosition = new THREE.Vector3(earthX * AU_TO_UNITS, earthY * AU_TO_UNITS, earthZ * AU_TO_UNITS);
+      const earthPosition = new THREE.Vector3(earthX * AU_TO_UNITS, earthY * AU_TO_UNITS, earthZ * AU_TO_UNITS);
 
       // Calculate positions relative to Earth (Earth is at origin in mini view)
-      const asteroidRelativePos = asteroidPosition.clone().sub(earthPosition);
-      const impactRelativePos = impactPosition.clone().sub(earthPosition);
+      const asteroidRelativePos = asteroidPosition.clone().sub(earthPosition).multiplyScalar(0.3);
+      const impactRelativePos = impactPosition.clone().sub(earthPosition).multiplyScalar(0.3);
 
       // Create curved trajectory points that curve toward the specific impact location
       const points: THREE.Vector3[] = [];
       const numPoints = 50; // Number of points for smooth curve
-      
+
       // Calculate time to impact
-      let timeToImpact = 0;
-      if (collisionOrbit) {
-        timeToImpact = collisionOrbit.collisionTime - simulationTime;
-      } else {
-        // For normal orbits, estimate time to impact based on distance
-        const distanceToImpact = asteroidPosition.distanceTo(impactPosition);
-        timeToImpact = Math.max(1, distanceToImpact / (AU_TO_UNITS * 0.1)); // Rough estimate
-      }
+      // Calculate time to impact
+      // let _timeToImpact = 0;
+      // if (collisionOrbit) {
+      //   _timeToImpact = collisionOrbit.collisionTime - simulationTime;
+      // } else {
+      //   // For normal orbits, estimate time to impact based on distance
+      //   const distanceToImpact = asteroidPosition.distanceTo(impactPosition);
+      //   _timeToImpact = Math.max(1, distanceToImpact / (AU_TO_UNITS * 0.1)); // Rough estimate
+      // }
 
       // Generate curved trajectory points that bend toward the impact location
       for (let i = 0; i <= numPoints; i++) {
         const progress = i / numPoints;
-        const t = simulationTime + (timeToImpact * progress);
-        
+        // const _t = simulationTime + (timeToImpact * progress);
+
         // Get the asteroid's natural orbital position at this time
-        let asteroidPositionAtTime: THREE.Vector3;
-        if (collisionOrbit) {
-          asteroidPositionAtTime = getCollisionOrbitPosition(collisionOrbit, t);
-        } else {
-          const [x, y, z] = getAsteroidPosition(t, orbitalData);
-          asteroidPositionAtTime = new THREE.Vector3(x * AU_TO_UNITS, y * AU_TO_UNITS, z * AU_TO_UNITS);
-        }
+        // let asteroidPositionAtTime: THREE.Vector3;
+        // if (collisionOrbit) {
+        //   asteroidPositionAtTime = getCollisionOrbitPosition(collisionOrbit, t);
+        // } else {
+        //   const [x, y, z] = getAsteroidPosition(t, orbitalData);
+        //   asteroidPositionAtTime = new THREE.Vector3(x * AU_TO_UNITS, y * AU_TO_UNITS, z * AU_TO_UNITS);
+        // }
 
         // Calculate the asteroid's position relative to Earth
-        const asteroidRelativePosAtTime = asteroidPositionAtTime.clone().sub(earthPosition);
-        
+        // const asteroidRelativePosAtTime = asteroidPositionAtTime.clone().sub(earthPosition);
+
         // Create a curved path that bends toward the impact location
         // Use a parabolic curve that starts at asteroid and curves toward impact
         const startPoint = asteroidRelativePos.clone();
         const endPoint = impactRelativePos.clone();
-        
+
         // Create a parabolic curve using quadratic Bezier curve
         // Control point is positioned to create a natural gravitational curve
         const midPoint = startPoint.clone().add(endPoint).multiplyScalar(0.5);
-        
+
         // Add gravitational bending - the curve should bend toward Earth's center
         const earthCenter = new THREE.Vector3(0, 0, 0); // Earth is at origin in mini view
         const directionToEarth = earthCenter.clone().sub(midPoint).normalize();
         const curveHeight = startPoint.distanceTo(endPoint) * 0.3; // Curve height
         const controlPoint = midPoint.clone().add(directionToEarth.multiplyScalar(curveHeight));
-        
+
         // Calculate point on the curved trajectory
         const t_curve = progress;
         const point = new THREE.Vector3()
           .addScaledVector(startPoint, (1 - t_curve) * (1 - t_curve))
           .addScaledVector(controlPoint, 2 * (1 - t_curve) * t_curve)
           .addScaledVector(endPoint, t_curve * t_curve);
-        
+
         points.push(point);
       }
 
@@ -345,7 +345,6 @@ function MiniAsteroid({
   useFrame((_, delta) => {
     if (groupRef.current) {
       let asteroidPosition: THREE.Vector3;
-      let earthPosition: THREE.Vector3;
 
       if (collisionOrbit) {
         // Use collision orbit position
@@ -358,11 +357,14 @@ function MiniAsteroid({
 
       // Get Earth's position
       const [earthX, earthY, earthZ] = getEarthPosition(simulationTime);
-      earthPosition = new THREE.Vector3(earthX * AU_TO_UNITS, earthY * AU_TO_UNITS, earthZ * AU_TO_UNITS);
+      const earthPosition = new THREE.Vector3(earthX * AU_TO_UNITS, earthY * AU_TO_UNITS, earthZ * AU_TO_UNITS);
 
       // Position asteroid relative to Earth (Earth is at origin in mini view)
       const relativePosition = asteroidPosition.clone().sub(earthPosition);
-      groupRef.current.position.copy(relativePosition);
+      
+      // Scale down the distance for better visibility in mini view
+      const scaledPosition = relativePosition.multiplyScalar(0.3);
+      groupRef.current.position.copy(scaledPosition);
 
       // Rotate asteroid
       if (meshRef.current) {
@@ -401,7 +403,7 @@ export function Mini3DView({
   if (!isVisible) return null;
 
   return (
-    <div className={`fixed bottom-5 left-5 z-50 transition-all duration-300 ${isExpanded ? 'w-80 h-60' : 'w-48 h-36'
+    <div className={`fixed bottom-5 left-5 z-50 transition-all duration-300 ${isExpanded ? 'w-[50vw] h-[50vh]' : 'w-48 h-36'
       }`}>
       {/* Mini view container */}
       <div className="relative w-full h-full bg-black/80 rounded-lg overflow-hidden shadow-2xl">
@@ -418,10 +420,10 @@ export function Mini3DView({
         </div>
 
         {/* 3D Canvas - Focused on Earth and Asteroid */}
-        <Canvas
-          camera={{ position: [0, 0, 4], fov: 60 }}
-          className="w-full h-full"
-        >
+      <Canvas
+        camera={{ position: [0, 0, 1.5], fov: 40 }}
+        className="w-full h-full"
+      >
           <ambientLight intensity={0.6} />
           <directionalLight position={[5, 5, 5]} intensity={1.0} />
 
@@ -449,7 +451,7 @@ export function Mini3DView({
             impactPosition={impactPosition}
           />
 
-          {/* Controls - Enable zoom for close-up viewing */}
+          {/* Controls - Keep zoomed in on Earth and impact */}
           <OrbitControls
             enableZoom={true}
             enablePan={true}
@@ -457,8 +459,9 @@ export function Mini3DView({
             rotateSpeed={0.5}
             zoomSpeed={1.2}
             panSpeed={0.8}
-            minDistance={0.01}
-            maxDistance={20}
+            minDistance={1.2}
+            maxDistance={3}
+            target={[0, 0, 0]}
           />
         </Canvas>
 

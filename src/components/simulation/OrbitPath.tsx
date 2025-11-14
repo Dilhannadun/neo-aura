@@ -7,8 +7,12 @@ import type { AsteroidOrbitalData } from "../../types/asteroid";
 
 export function OrbitPath({
   orbitalData,
+  color = "#888888",
+  opacity = 1.0,
 }: {
   orbitalData: AsteroidOrbitalData;
+  color?: string;
+  opacity?: number;
 }) {
   const points = useMemo(() => {
     const pathPoints = [];
@@ -25,5 +29,5 @@ export function OrbitPath({
     return pathPoints;
   }, [orbitalData]);
 
-  return <Line points={points} color="#888888" lineWidth={1} />;
+  return <Line points={points} color={color} lineWidth={1} opacity={opacity} />;
 }

@@ -4,7 +4,7 @@ import * as THREE from "three";
 import { findAllOrbitalIntersections } from "../../utils/orbitalCollision";
 
 interface IntersectionPointsProps {
-  asteroidOrbitalData: any;
+  asteroidOrbitalData: unknown;
   maxSearchDays?: number;
   isVisible?: boolean;
 }
@@ -57,7 +57,7 @@ export const IntersectionPoints = forwardRef<THREE.Group, IntersectionPointsProp
     }, [asteroidOrbitalData, maxSearchDays]);
 
     // Animate intersection points
-    useFrame((state, delta) => {
+    useFrame((_, delta) => {
       if (!isVisible || !groupRef.current) return;
 
       intersectionPoints.current.forEach(point => {

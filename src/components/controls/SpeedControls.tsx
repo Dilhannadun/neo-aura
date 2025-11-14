@@ -88,41 +88,14 @@ const SpeedControls: React.FC<SpeedControlsProps> = ({
     setIsPlaying(true);
   }, [onTimeScaleChange]);
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (!isVisible) return;
-
-      switch (e.code) {
-        case 'Space':
-          e.preventDefault();
-          handlePlayPause();
-          break;
-        case 'ArrowLeft':
-          e.preventDefault();
-          handlePreviousSpeed();
-          break;
-        case 'ArrowRight':
-          e.preventDefault();
-          handleNextSpeed();
-          break;
-        case 'KeyR':
-          e.preventDefault();
-          handleReset();
-          break;
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [isVisible, handlePlayPause, handlePreviousSpeed, handleNextSpeed, handleReset]);
+  // Keyboard shortcuts removed to prevent conflicts with terminal input
 
   if (!isVisible) return null;
 
   const currentPreset = SPEED_PRESETS[currentSpeedIndex];
 
   return (
-    <div className="fixed bottom-28 left-1/2 transform -translate-x-1/2 z-50">
+    <div className="fixed bottom-5 right-5 z-50">
       <div className='bg-black/90 backdrop-blur-xl  rounded-xl p-4 shadow-2xl'>
         <div className="flex items-center gap-4">
           {/* Simulation Control Group */}
@@ -236,6 +209,23 @@ const SpeedControls: React.FC<SpeedControlsProps> = ({
 
             >
               <RotateCcw className="w-4 h-4" />
+            </Button>
+          </ButtonGroup>
+
+          {/* Deflect Asteroid Button - Always Visible */}
+          <ButtonGroup>
+            <Button
+              onClick={() => {
+                // This will be handled by the DeflectAsteroidButton component
+                // We need to trigger the terminal opening
+                const event = new CustomEvent('openDeflectTerminal');
+                window.dispatchEvent(event);
+              }}
+              variant="destructive"
+              size="sm"
+              className="gap-2"
+            >
+              🚨 Deflect Asteroid
             </Button>
           </ButtonGroup>
 
